@@ -11,7 +11,7 @@ import SwiftUI
 struct GoingPostalApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView().environmentObject(PostService.shared)
         }
     }
 }

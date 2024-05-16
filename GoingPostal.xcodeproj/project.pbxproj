@@ -14,6 +14,12 @@
 		7D1C55682BF3F006004B995C /* GoingPostalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1C55672BF3F006004B995C /* GoingPostalTests.swift */; };
 		7D1C55722BF3F006004B995C /* GoingPostalUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1C55712BF3F006004B995C /* GoingPostalUITests.swift */; };
 		7D1C55742BF3F006004B995C /* GoingPostalUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1C55732BF3F006004B995C /* GoingPostalUITestsLaunchTests.swift */; };
+		7D1C55812BF3F043004B995C /* PostService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1C55802BF3F043004B995C /* PostService.swift */; };
+		7D1C55832BF3F0F4004B995C /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1C55822BF3F0F4004B995C /* CoreDataStack.swift */; };
+		7D1C55862BF3F164004B995C /* PostModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 7D1C55842BF3F164004B995C /* PostModel.xcdatamodeld */; };
+		7D1C558D2BF3F345004B995C /* Post+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1C558B2BF3F345004B995C /* Post+CoreDataClass.swift */; };
+		7D1C558E2BF3F345004B995C /* Post+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1C558C2BF3F345004B995C /* Post+CoreDataProperties.swift */; };
+		7D1C55902BF3F487004B995C /* AddPostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1C558F2BF3F487004B995C /* AddPostView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +50,12 @@
 		7D1C556D2BF3F006004B995C /* GoingPostalUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GoingPostalUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D1C55712BF3F006004B995C /* GoingPostalUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoingPostalUITests.swift; sourceTree = "<group>"; };
 		7D1C55732BF3F006004B995C /* GoingPostalUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoingPostalUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		7D1C55802BF3F043004B995C /* PostService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostService.swift; sourceTree = "<group>"; };
+		7D1C55822BF3F0F4004B995C /* CoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
+		7D1C55852BF3F164004B995C /* PostModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = PostModel.xcdatamodel; sourceTree = "<group>"; };
+		7D1C558B2BF3F345004B995C /* Post+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Post+CoreDataClass.swift"; sourceTree = "<group>"; };
+		7D1C558C2BF3F345004B995C /* Post+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Post+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		7D1C558F2BF3F487004B995C /* AddPostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPostView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,10 +106,15 @@
 		7D1C55552BF3F004004B995C /* GoingPostal */ = {
 			isa = PBXGroup;
 			children = (
+				7D1C558B2BF3F345004B995C /* Post+CoreDataClass.swift */,
+				7D1C558C2BF3F345004B995C /* Post+CoreDataProperties.swift */,
 				7D1C55562BF3F004004B995C /* GoingPostalApp.swift */,
-				7D1C55582BF3F004004B995C /* ContentView.swift */,
 				7D1C555A2BF3F006004B995C /* Assets.xcassets */,
 				7D1C555C2BF3F006004B995C /* Preview Content */,
+				7D1C55802BF3F043004B995C /* PostService.swift */,
+				7D1C55822BF3F0F4004B995C /* CoreDataStack.swift */,
+				7D1C55842BF3F164004B995C /* PostModel.xcdatamodeld */,
+				7D1C558F2BF3F487004B995C /* AddPostView.swift */,
 			);
 			path = GoingPostal;
 			sourceTree = "<group>";
@@ -105,6 +122,7 @@
 		7D1C555C2BF3F006004B995C /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
+				7D1C55582BF3F004004B995C /* ContentView.swift */,
 				7D1C555D2BF3F006004B995C /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
@@ -258,7 +276,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				7D1C55592BF3F004004B995C /* ContentView.swift in Sources */,
+				7D1C55812BF3F043004B995C /* PostService.swift in Sources */,
+				7D1C558D2BF3F345004B995C /* Post+CoreDataClass.swift in Sources */,
+				7D1C558E2BF3F345004B995C /* Post+CoreDataProperties.swift in Sources */,
 				7D1C55572BF3F004004B995C /* GoingPostalApp.swift in Sources */,
+				7D1C55832BF3F0F4004B995C /* CoreDataStack.swift in Sources */,
+				7D1C55902BF3F487004B995C /* AddPostView.swift in Sources */,
+				7D1C55862BF3F164004B995C /* PostModel.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -588,6 +612,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		7D1C55842BF3F164004B995C /* PostModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				7D1C55852BF3F164004B995C /* PostModel.xcdatamodel */,
+			);
+			currentVersion = 7D1C55852BF3F164004B995C /* PostModel.xcdatamodel */;
+			name = PostModel.xcdatamodeld;
+			path = /Users/rleclus/Development/GoingPostal/GoingPostal/PostModel.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 7D1C554B2BF3F004004B995C /* Project object */;
 }
