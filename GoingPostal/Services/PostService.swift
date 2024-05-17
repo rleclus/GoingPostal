@@ -11,7 +11,9 @@ import CoreData
 class PostService: ObservableObject {
     static let shared = PostService()
     
-    private init() {}
+    private init() {
+        fetchStoredPosts()
+    }
     
     @Published var posts: [Post] = []
     @Published var errorMessage = "An error has occurred!"
@@ -26,46 +28,51 @@ class PostService: ObservableObject {
             let (data, _) = try await URLSession.shared.data(from: url)
             let postsResponse = try JSONDecoder().decode([PostResponse].self, from: data)
             
-            DispatchQueue.main.async {
-                self.updateCoreData(with: postsResponse)
+            // Perform Core Data operations on a background context
+            let context = CoreDataStack.shared.backgroundContext()
+            await context.perform {
+                self.updateCoreData(with: postsResponse, context: context)
             }
         } catch {
             print("Error fetching posts: \(error.localizedDescription)")
         }
     }
     
-    private func updateCoreData(with postsResponse: [PostResponse]) {
-            let context = CoreDataStack.shared.context
+    private func updateCoreData(with postsResponse: [PostResponse], context: NSManagedObjectContext) {
+        for postResponse in postsResponse {
+            let fetchRequest: NSFetchRequest<Post> = Post.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "id == %d", postResponse.id)
             
-            for postResponse in postsResponse {
-                let fetchRequest: NSFetchRequest<Post> = Post.fetchRequest()
-                fetchRequest.predicate = NSPredicate(format: "id == %d", postResponse.id)
+            do {
+                let results = try context.fetch(fetchRequest)
                 
-                do {
-                    let results = try context.fetch(fetchRequest)
-                    
-                    if results.isEmpty {
-                        // This post does not exist in Core Data, so create a new one
-                        let newPost = Post(context: context)
-                        newPost.userID = Int32(postResponse.userId)
-                        newPost.id = Int32(postResponse.id)
-                        newPost.title = postResponse.title
-                        newPost.body = postResponse.body
-                    }
-                } catch {
-                    print("Error fetching post: \(error.localizedDescription)")
+                if results.isEmpty {
+                    // This post does not exist in Core Data, so create a new one
+                    let newPost = Post(context: context)
+                    newPost.userID = Int32(postResponse.userId)
+                    newPost.id = Int32(postResponse.id)
+                    newPost.title = postResponse.title
+                    newPost.body = postResponse.body
                 }
+            } catch {
+                print("Error fetching post: \(error.localizedDescription)")
             }
-            
-            // Save changes to Core Data
-            CoreDataStack.shared.saveContext()
-            
-            // Update the published posts array to notify the view
-            fetchStoredPosts()
         }
+        
+        // Save changes to Core Data
+        do {
+            try context.save()
+            // Update the published posts array on the main thread to notify the view
+            DispatchQueue.main.async {
+                self.fetchStoredPosts()
+            }
+        } catch {
+            print("Error saving context: \(error.localizedDescription)")
+        }
+    }
+
     private func fetchStoredPosts() {
         let context = CoreDataStack.shared.context
-        
         let fetchRequest: NSFetchRequest<Post> = Post.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true, selector: #selector(NSString.localizedCaseInsensitiveCompare))]
         
@@ -85,31 +92,45 @@ class PostService: ObservableObject {
         
         let context = CoreDataStack.shared.context
         
-        let newPost = Post(context: context)
-        newPost.title = title
-        newPost.body = body
+        context.performAndWait {
+            let newPost = Post(context: context)
+            newPost.userID = Int32(userId)
+            newPost.id = Int32(id)
+            newPost.title = title
+            newPost.body = body
+            
+            do {
+                try context.save()
+                DispatchQueue.main.async {
+                    self.fetchStoredPosts()
+                }
+            } catch {
+                print("Error saving new post: \(error.localizedDescription)")
+            }
+        }
         
-        CoreDataStack.shared.saveContext()
-        
-        fetchStoredPosts()
         return true
     }
     
     func deletePost(withTitle title: String) {
         let context = CoreDataStack.shared.context
         
-        let fetchRequest: NSFetchRequest<Post> = Post.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "title == %@", title)
-        
-        do {
-            let postsToDelete = try context.fetch(fetchRequest)
-            for post in postsToDelete {
-                context.delete(post)
+        context.perform {
+            let fetchRequest: NSFetchRequest<Post> = Post.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "title == %@", title)
+            
+            do {
+                let postsToDelete = try context.fetch(fetchRequest)
+                for post in postsToDelete {
+                    context.delete(post)
+                }
+                try context.save()
+                DispatchQueue.main.async {
+                    self.fetchStoredPosts()
+                }
+            } catch {
+                print("Error deleting post: \(error.localizedDescription)")
             }
-            CoreDataStack.shared.saveContext()
-            fetchStoredPosts()
-        } catch {
-            print("Error deleting post: \(error.localizedDescription)")
         }
     }
 }
