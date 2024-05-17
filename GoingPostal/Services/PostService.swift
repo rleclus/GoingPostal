@@ -14,7 +14,8 @@ class PostService: ObservableObject {
     private init() {}
     
     @Published var posts: [Post] = []
-    
+    @Published var errorMessage = "An error has occurred!"
+
     func fetchPostsAndUpdateCoreData() async {
         guard let url = URL(string: "https://jsonplaceholder.typicode.com/posts") else {
             print("Invalid URL")
@@ -75,24 +76,23 @@ class PostService: ObservableObject {
         }
     }
     
-    func addPost(userId: Int, id: Int, title: String, body: String) {
+    func addPost(userId: Int, id: Int, title: String, body: String) -> Bool {
         // Check for duplicate titles before adding a new post
         guard !posts.contains(where: { $0.title?.caseInsensitiveCompare(title) == .orderedSame }) else {
-            print("Error: Post with the same title already exists.")
-            return
+            errorMessage = "Duplicate Entry. Title already exists."
+            return false
         }
         
         let context = CoreDataStack.shared.context
         
         let newPost = Post(context: context)
-        newPost.userID = Int32(userId)
-        newPost.id = Int32(id)
         newPost.title = title
         newPost.body = body
         
         CoreDataStack.shared.saveContext()
         
         fetchStoredPosts()
+        return true
     }
     
     func deletePost(withTitle title: String) {
