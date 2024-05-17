@@ -12,12 +12,14 @@ struct ErrorMessageView: View {
     @State private var errorMessage: String?
 
     var body: some View {
+        VStack {
             Text(postService.errorMessage)
-                    .foregroundColor(.white)
-                    .padding()
-                    .background(Color.red)
-                    .frame(maxWidth: .infinity)
-                    .lineLimit(2) // Limit text to 2 lines to avoid excessive height
+                .foregroundColor(.white)
+                .padding()
+                .background(Color.red)
+                .frame(maxWidth: .infinity)
+                .lineLimit(2) // Limit text to 2 lines to avoid excessive height
+        }.background(Color.red)
                     
     }
 }
