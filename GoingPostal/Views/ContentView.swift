@@ -47,7 +47,16 @@ struct ContentView: View {
                 }
                 .padding()
             }
-            .navigationBarTitle("Posts")
+            .navigationBarTitle("")
+            .navigationBarItems(leading: HStack {
+                Text("Posts")
+                    .font(.title) // Use .title2 for inline mode
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                    .padding(.leading)
+                Image("postbox")
+            }
+            )
             .sheet(isPresented: $isAddPostViewPresented) {
                 AddPostView(isPresented: $isAddPostViewPresented)
             }.onAppear(){
