@@ -9,10 +9,11 @@ import Foundation
 import CoreData
 
 class PostService: ObservableObject {
-    static let shared = PostService()
     
-    private init() {
-        fetchStoredPosts()
+    private var coreDataStack: CoreDataStack
+    
+    init(coreDataStack: CoreDataStack = CoreDataStack()) {
+        self.coreDataStack = coreDataStack
     }
     
     @Published var posts: [Post] = []
@@ -29,7 +30,7 @@ class PostService: ObservableObject {
             let postsResponse = try JSONDecoder().decode([PostResponse].self, from: data)
             
             // Perform Core Data operations on a background context
-            let context = CoreDataStack.shared.backgroundContext()
+            let context = coreDataStack.backgroundContext()
             await context.perform {
                 self.updateCoreData(with: postsResponse, context: context)
             }
@@ -62,17 +63,13 @@ class PostService: ObservableObject {
         // Save changes to Core Data
         do {
             try context.save()
-            // Update the published posts array on the main thread to notify the view
-            DispatchQueue.main.async {
-                self.fetchStoredPosts()
-            }
         } catch {
             print("Error saving context: \(error.localizedDescription)")
         }
     }
 
-    private func fetchStoredPosts() {
-        let context = CoreDataStack.shared.context
+    internal func fetchStoredPosts() {
+        let context = coreDataStack.context
         let fetchRequest: NSFetchRequest<Post> = Post.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true, selector: #selector(NSString.localizedCaseInsensitiveCompare))]
         
@@ -83,15 +80,38 @@ class PostService: ObservableObject {
         }
     }
     
+    func fetchPostByTitle(_ title: String) -> Post? {
+        let context = coreDataStack.context
+        let fetchRequest: NSFetchRequest<Post> = Post.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "title ==[c] %@", title)
+        
+        do {
+            let results = try context.fetch(fetchRequest)
+            return results.first
+        } catch {
+            print("Error fetching post by title: \(error.localizedDescription)")
+            return nil
+        }
+    }
+        
     func addPost(userId: Int, id: Int, title: String, body: String) -> Bool {
-        // Check for duplicate titles before adding a new post
-        guard !posts.contains(where: { $0.title?.caseInsensitiveCompare(title) == .orderedSame }) else {
-            errorMessage = "Duplicate Entry. Title already exists."
+        guard !title.isEmpty else {
+            errorMessage = "Title cannot be empty!"
             return false
         }
         
-        let context = CoreDataStack.shared.context
-        
+        guard !body.isEmpty else {
+            errorMessage = "Body cannot be empty!"
+            return false
+        }
+
+        guard fetchPostByTitle(title) == nil else {
+            errorMessage = "Duplicate Entry. Title already exists."
+            return false
+        }
+
+            let context = coreDataStack.context
+
         context.performAndWait {
             let newPost = Post(context: context)
             newPost.userID = Int32(userId)
@@ -101,9 +121,6 @@ class PostService: ObservableObject {
             
             do {
                 try context.save()
-                DispatchQueue.main.async {
-                    self.fetchStoredPosts()
-                }
             } catch {
                 print("Error saving new post: \(error.localizedDescription)")
             }
@@ -113,9 +130,9 @@ class PostService: ObservableObject {
     }
     
     func deletePost(withTitle title: String) {
-        let context = CoreDataStack.shared.context
+        let context = coreDataStack.context
         
-        context.perform {
+        context.performAndWait {
             let fetchRequest: NSFetchRequest<Post> = Post.fetchRequest()
             fetchRequest.predicate = NSPredicate(format: "title == %@", title)
             
@@ -125,9 +142,6 @@ class PostService: ObservableObject {
                     context.delete(post)
                 }
                 try context.save()
-                DispatchQueue.main.async {
-                    self.fetchStoredPosts()
-                }
             } catch {
                 print("Error deleting post: \(error.localizedDescription)")
             }

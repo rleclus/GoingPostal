@@ -26,7 +26,7 @@ struct ErrorMessageView: View {
 
 struct ErrorMessageView_Previews: PreviewProvider {
     static var previews: some View {
-        ErrorMessageView().environmentObject(PostService.shared)
+        ErrorMessageView().environmentObject(PostManager.service)
             .previewLayout(.sizeThatFits)
     }
 }

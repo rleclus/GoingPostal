@@ -51,8 +51,10 @@ struct ContentView: View {
             .sheet(isPresented: $isAddPostViewPresented) {
                 AddPostView(isPresented: $isAddPostViewPresented)
             }.onAppear(){
-                Task {
+                Task(priority: .background) {
+                    guard !ProcessInfo.processInfo.isRunningTests else { return }
                     await postService.fetchPostsAndUpdateCoreData()
+                    postService.fetchStoredPosts()
                 }
             }
         }
@@ -62,6 +64,7 @@ struct ContentView: View {
         offsets.forEach { index in
             let post = postService.posts[index]
             postService.deletePost(withTitle: post.title ?? "")
+            postService.fetchStoredPosts()
         }
     }
 }
@@ -69,6 +72,6 @@ struct ContentView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
-            .environmentObject(PostService.shared)
+            .environmentObject(PostManager.service)
     }
 }
