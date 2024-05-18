@@ -92,5 +92,38 @@ class PostServiceTests: XCTestCase {
         let titles = postService.posts.map { $0.title }
         XCTAssertEqual(titles, ["Title A", "Title B"], "The posts should be fetched and sorted by title")
     }
+
+    func testFetchPostByTitle() {
+        _ = postService.addPost(userId: 1, id: 1, title: "Title A", body: "Test Body A")
+        let post = postService.fetchPostByTitle("Title B")
+        XCTAssertNil(post, "There should be no post here")
+        let post2 = postService.fetchPostByTitle("Title A")
+        XCTAssertNotNil(post2, "There should be a post here")
+
+    }
+    
+    func testFetchSortedPosts() {
+        _ = postService.addPost(userId: 1, id: 2, title: "B Post", body: "This is B post.")
+        _ = postService.addPost(userId: 1, id: 3, title: "a Post", body: "This is A post.")
+        _ = postService.addPost(userId: 1, id: 4, title: "C Post", body: "This is C post.")
+            
+        postService.fetchStoredPosts()
+        XCTAssertEqual(postService.posts.count, 3)
+        XCTAssertEqual(postService.posts[0].title, "a Post")
+        XCTAssertEqual(postService.posts[1].title, "B Post")
+        XCTAssertEqual(postService.posts[2].title, "C Post")
+    }
+    
+    func testFetchPostsAndUpdateCoreData()  async throws {
+        await postService.fetchPostsAndUpdateCoreData()
+        let fetchRequest: NSFetchRequest<Post> = Post.fetchRequest()
+        do {
+            let posts = try mockPersistentContainer.viewContext.fetch(fetchRequest)
+            XCTAssertEqual(posts.count, 100, "There should be only one post in the context")
+        } catch {
+            XCTFail("Fetching posts failed: \(error)")
+        }
+        
+    }
 }
 
