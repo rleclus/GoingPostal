@@ -48,6 +48,7 @@ struct AddPostView: View {
                     },
                     trailing: Button("Save") {
                         if postService.addPost(userId: 1, id: Int(Date().timeIntervalSince1970), title: postTitle, body: postBody) {
+                            postService.fetchStoredPosts()
                             isPresented = false
                         } else {
                             withAnimation(.easeOut(duration: 1)) {
@@ -64,7 +65,7 @@ struct AddPostView: View {
 struct AddPostView_Previews: PreviewProvider {
     static var previews: some View {
         AddPostView(isPresented: .constant(true))
-            .environmentObject(PostService.shared)
+            .environmentObject(PostManager.service)
             .previewLayout(.sizeThatFits)
     }
 }
