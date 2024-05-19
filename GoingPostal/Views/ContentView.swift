@@ -11,6 +11,8 @@ struct ContentView: View {
     @EnvironmentObject var postService: PostService
     @State private var isAddPostViewPresented = false
     @State private var expandedGroupIndex: Int? = nil // Track the index of the expanded group
+    @State private var isLoading = true // Track loading state
+
     
     var body: some View {
         NavigationView {
@@ -48,22 +50,31 @@ struct ContentView: View {
                 .padding()
             }
             .navigationBarTitle("")
-            .navigationBarItems(leading: HStack {
+            .navigationBarItems(                leading: HStack {
                 Text("Posts")
                     .font(.title) // Use .title2 for inline mode
                     .fontWeight(.bold)
                     .foregroundColor(.primary)
                     .padding(.leading)
                 Image("postbox")
+            },
+            trailing: Group {
+                if isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle())
+                }
             }
+
             )
             .sheet(isPresented: $isAddPostViewPresented) {
                 AddPostView(isPresented: $isAddPostViewPresented)
             }.onAppear(){
                 Task(priority: .background) {
                     guard !ProcessInfo.processInfo.isRunningTests else { return }
-                    await postService.fetchPostsAndUpdateCoreData()
-                    postService.fetchStoredPosts()
+                    isLoading = true
+                     await postService.fetchPostsAndUpdateCoreData()
+                     postService.fetchStoredPosts()
+                     isLoading = false
                 }
             }
         }
